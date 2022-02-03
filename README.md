@@ -1,39 +1,132 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Golden tools
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+The useful tools for golden tests and different devices.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+## Example
 
 ```dart
-const like = 'sample';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:golden/golden.dart';
+
+void main() {
+  setUpAll(() async {
+    await init();
+  });
+
+  group('Login golden -', () {
+    LoginGoldenTester loginTester;
+    setUp(() {
+      loginTester = LoginGoldenTester();
+    });
+
+    testDeviceGoldens(
+      'loaded page',
+      (tester, device) => loginTester.builder(tester, device, scenarioName: 'init', scenario: (_) async {
+        await loginTester.init();
+      }),
+      devices: GoldenTestDevices.bundle,
+    );
+
+    testDeviceGoldens(
+      'entered an email',
+      (tester, device) => loginTester.builder(tester, device, scenarioName: 'init->email', scenario: (_) async {
+        await loginTester.init();
+        await loginTester.enterEmail('some@email.ru');
+      }),
+      devices: GoldenTestDevices.bundle,
+    );
+    testDeviceGoldens(
+      'entered a wrong email and pushed a button',
+      (tester, device) => loginTester.builder(tester, device, scenarioName: 'init->wrong_email->next_button', scenario: (_) async {
+        await loginTester.init();
+        await loginTester.enterEmail('some_email.ru');
+        await loginTester.pushNextButton();
+      }),
+      devices: GoldenTestDevices.bundle,
+    );
+
+    testDeviceGoldens(
+      'entered a correct email and pushed a button',
+      (tester, device) => loginTester.builder(tester, device, scenarioName: 'init->correct_email->next_button', scenario: (_) async {
+        await loginTester.init();
+        await loginTester.enterEmail('some@email.ru');
+        await loginTester.pushNextButton();
+      }),
+      devices: GoldenTestDevices.bundle,
+    );
+
+    testDeviceGoldens(
+      'entered a password',
+      (tester, device) => loginTester.builder(tester, device, scenarioName: 'init->correct_email->next_button->password', scenario: (_) async {
+        await loginTester.init();
+        await loginTester.enterEmail('some@email.ru');
+        await loginTester.pushNextButton();
+        await loginTester.enterPassword('password');
+      }),
+      devices: GoldenTestDevices.bundle,
+    );
+
+    testDeviceGoldens(
+      'entered a password and pushed a button',
+      (tester, device) =>
+          loginTester.builder(tester, device, scenarioName: 'init->correct_email->next_button->password->next_button', scenario: (_) async {
+        await loginTester.init();
+        await loginTester.enterEmail('some@email.ru');
+        await loginTester.pushNextButton();
+        await loginTester.enterPassword('password');
+        await loginTester.pushNextButton();
+      }),
+      devices: GoldenTestDevices.bundle,
+    );
+  });
+}
+
+class LoginGoldenTester extends GoldenTester {
+  LoginGoldenTester()
+      : super(
+          widget: (key) => LoginPage(
+            key: key,
+            loginType: LoginType.email,
+          ),
+          wrapper: (child) => Helper.create(child: child),
+        );
+
+  Future<void> init() async {
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> enterEmail(String email) async {
+    final finder = find.descendant(
+      of: find.byType(LoginScreen),
+      matching: find.byType(SpecialFormTextField),
+    );
+    expect(finder, findsOneWidget);
+    await tester.enterText(finder, email);
+
+    await tester.pump();
+  }
+
+  Future<void> pushNextButton() async {
+    final finder = find.descendant(
+      of: find.byType(LoginScreen),
+      matching: find.byType(NextButton),
+    );
+    expect(finder, findsOneWidget);
+    await tester.tap(finder);
+
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> enterPassword(String password) async {
+    final finder = find.descendant(
+      of: find.byType(LoginScreen),
+      matching: find.byType(SpecialFormTextField),
+    );
+    expect(finder, findsOneWidget);
+    await tester.enterText(finder, password);
+
+    await tester.pump();
+  }
+}
+
 ```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
