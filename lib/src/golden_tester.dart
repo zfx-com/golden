@@ -47,12 +47,17 @@ abstract class GoldenTesterBase {
   }
 }
 
+typedef PumpingCallback = Future<void> Function(WidgetTester tester);
+
 class GoldenTester extends GoldenTesterBase {
   GoldenTester({
     required Widget Function(Key key) widget,
     required Widget Function(Widget) wrapper,
     String testName = '',
+    this.postPumping = _defaultPostPumping,
   }) : super(testName: testName, widget: widget, wrapper: wrapper);
+
+  final PumpingCallback? postPumping;
 
   Future<void> builder(
     WidgetTester tester,
@@ -64,5 +69,11 @@ class GoldenTester extends GoldenTesterBase {
         tester: tester, device: device, scenarioName: scenarioName);
     await scenario(this);
     await matchesGolden();
+    await postPumping?.call(tester);
+  }
+
+  static Future<void> _defaultPostPumping(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1));
   }
 }
