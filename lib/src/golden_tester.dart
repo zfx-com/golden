@@ -10,11 +10,12 @@ abstract class GoldenTesterBase {
     this.testName = '',
   })  : _widget = widget,
         _wrapper = wrapper,
-        _key = UniqueKey();
+        key = UniqueKey();
 
   final String folder = 'golden';
 
-  final Key _key;
+  @protected
+  final Key key;
 
   final Widget Function(Key key) _widget;
   final Widget Function(Widget) _wrapper;
@@ -33,14 +34,14 @@ abstract class GoldenTesterBase {
     this.tester = tester;
     this.scenarioName = scenarioName;
     this.device = device;
-    await tester.pumpWidget(_wrapper(_widget(_key)));
+    await tester.pumpWidget(_wrapper(_widget(key)));
   }
 
   Future<void> matchesGolden() async {
     final dot = testName.isEmpty ? '' : '.';
     final deviceName = device == null ? '' : device!.name;
     await expectLater(
-      find.byKey(_key),
+      find.byKey(key),
       matchesGoldenFile('$folder/$scenarioName/$testName$dot$deviceName.png'),
     );
   }
