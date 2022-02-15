@@ -11,7 +11,7 @@ void testDeviceGoldens(
   Timeout? timeout,
   bool semanticsEnabled = true,
   TestVariant<Object?> variant = const DefaultTestVariant(),
-  dynamic tags,
+  Iterable<String>? tags,
 }) {
   _TestDeviceGoldens.testWidgetDevices(
     description,
@@ -34,7 +34,7 @@ class _TestDeviceGoldens {
     Timeout? timeout,
     bool semanticsEnabled = true,
     TestVariant<Object?> variant = const DefaultTestVariant(),
-    dynamic tags,
+    Iterable<String>? tags,
   }) {
     for (final device in devices) {
       testWidgets(
@@ -47,7 +47,7 @@ class _TestDeviceGoldens {
         timeout: timeout,
         semanticsEnabled: semanticsEnabled,
         variant: variant,
-        tags: tags,
+        tags: _addGoldenTag(tags),
       );
     }
   }
@@ -58,5 +58,14 @@ class _TestDeviceGoldens {
     tester.binding.window.physicalSizeTestValue = device.size;
     tester.binding.window.devicePixelRatioTestValue = 1.0;
     tester.binding.window.textScaleFactorTestValue = device.textScale;
+  }
+
+  static const String goldenTag = 'golden';
+
+  static Iterable<String> _addGoldenTag(Iterable<String>? inputTags) {
+    if (inputTags != null) {
+      return [goldenTag, ...inputTags];
+    }
+    return [goldenTag];
   }
 }
