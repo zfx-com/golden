@@ -41,7 +41,7 @@ abstract class GoldenTesterBase {
     final dot = testName.isEmpty ? '' : '.';
     final deviceName = device == null ? '' : device!.name;
     await expectLater(
-      find.byKey(key),
+      find.byWidgetPredicate((widget) => true).first,
       matchesGoldenFile('$folder/$scenarioName/$testName$dot$deviceName.png'),
     );
   }
