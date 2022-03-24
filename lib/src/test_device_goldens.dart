@@ -9,6 +9,7 @@ void testDeviceGoldens(
   String description,
   Future<void> Function(WidgetTester, Device) builder, {
   FutureOr<void> Function()? setUp,
+  FutureOr<void> Function()? tearDown,
   List<Device> devices = const [Device.phone],
   bool? skip,
   Timeout? timeout,
@@ -20,6 +21,7 @@ void testDeviceGoldens(
     description,
     builder,
     setUp: setUp,
+    tearDown: tearDown,
     devices: devices,
     skip: skip,
     timeout: timeout,
@@ -34,6 +36,7 @@ class _TestDeviceGoldens {
     String description,
     Future<void> Function(WidgetTester, Device) builder, {
     FutureOr<void> Function()? setUp,
+    FutureOr<void> Function()? tearDown,
     List<Device> devices = const [Device.phone],
     bool? skip,
     Timeout? timeout,
@@ -48,6 +51,7 @@ class _TestDeviceGoldens {
           await setUp?.call();
           await _setSurfaceSize(tester, device);
           await builder(tester, device);
+          await tearDown?.call();
         },
         skip: skip,
         timeout: timeout,
