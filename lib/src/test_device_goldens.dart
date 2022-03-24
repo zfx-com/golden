@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 void testDeviceGoldens(
   String description,
   Future<void> Function(WidgetTester, Device) builder, {
+  FutureOr<void> Function()? setUp,
   List<Device> devices = const [Device.phone],
   bool? skip,
   Timeout? timeout,
@@ -16,6 +19,7 @@ void testDeviceGoldens(
   _TestDeviceGoldens.testWidgetDevices(
     description,
     builder,
+    setUp: setUp,
     devices: devices,
     skip: skip,
     timeout: timeout,
@@ -29,6 +33,7 @@ class _TestDeviceGoldens {
   static void testWidgetDevices(
     String description,
     Future<void> Function(WidgetTester, Device) builder, {
+    FutureOr<void> Function()? setUp,
     List<Device> devices = const [Device.phone],
     bool? skip,
     Timeout? timeout,
@@ -40,6 +45,7 @@ class _TestDeviceGoldens {
       testWidgets(
         '$description (${device.name})',
         (tester) async {
+          await setUp?.call();
           await _setSurfaceSize(tester, device);
           await builder(tester, device);
         },
