@@ -6,7 +6,7 @@ import 'package:golden_toolkit/golden_toolkit.dart';
 abstract class GoldenTesterBase {
   GoldenTesterBase({
     required Widget Function(Key key) widget,
-    required Widget Function(Widget) wrapper,
+    required Widget Function(Widget, Locale) wrapper,
     this.testName = '',
   })  : _widget = widget,
         _wrapper = wrapper,
@@ -18,31 +18,36 @@ abstract class GoldenTesterBase {
   final Key key;
 
   final Widget Function(Key key) _widget;
-  final Widget Function(Widget) _wrapper;
+  final Widget Function(Widget, Locale) _wrapper;
 
   final String testName;
   late String scenarioName;
   late WidgetTester tester;
-  Device? device;
+  late Device device;
+  late Locale locale;
 
   @mustCallSuper
   Future<void> setScenario({
     required WidgetTester tester,
     required String scenarioName,
-    Device? device,
+    required Device device,
+    required Locale locale,
   }) async {
     this.tester = tester;
     this.scenarioName = scenarioName;
     this.device = device;
-    await tester.pumpWidget(_wrapper(_widget(key)));
+    this.locale = locale;
+    await tester.pumpWidget(_wrapper(_widget(key), locale));
   }
 
   Future<void> matchesGolden() async {
     final dot = testName.isEmpty ? '' : '.';
-    final deviceName = device == null ? '' : device!.name;
+    final deviceName = device.name;
+    final localeName = locale.toString();
     await expectLater(
       find.byWidgetPredicate((widget) => true).first,
-      matchesGoldenFile('$folder/$scenarioName/$testName$dot$deviceName.png'),
+      matchesGoldenFile(
+          '$folder/$scenarioName/$testName$dot$deviceName($localeName).png'),
     );
   }
 }
@@ -52,7 +57,7 @@ typedef PumpingCallback = Future<void> Function(WidgetTester tester);
 class GoldenTester extends GoldenTesterBase {
   GoldenTester({
     required Widget Function(Key key) widget,
-    required Widget Function(Widget) wrapper,
+    required Widget Function(Widget, Locale) wrapper,
     String testName = '',
     PumpingCallback? postPumping = _defaultPostPumping,
   })  : _postPumping = postPumping,
@@ -62,12 +67,17 @@ class GoldenTester extends GoldenTesterBase {
 
   Future<void> builder(
     WidgetTester tester,
-    Device device, {
+    Device device,
+    Locale locale, {
     required String scenarioName,
     required Future<void> Function(GoldenTesterBase) scenario,
   }) async {
     await setScenario(
-        tester: tester, device: device, scenarioName: scenarioName);
+      tester: tester,
+      device: device,
+      scenarioName: scenarioName,
+      locale: locale,
+    );
     await scenario(this);
     await matchesGolden();
     await _postPumping?.call(tester);
