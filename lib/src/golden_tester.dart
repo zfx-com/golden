@@ -44,10 +44,14 @@ abstract class GoldenTesterBase {
     final dot = testName.isEmpty ? '' : '.';
     final deviceName = device.name;
     final localeName = locale.toString();
+    var postfix = '($localeName)';
+    if (localeName == 'en') {
+      postfix = '';
+    }
     await expectLater(
       find.byWidgetPredicate((widget) => true).first,
       matchesGoldenFile(
-          '$folder/$scenarioName/$testName$dot$deviceName($localeName).png'),
+          '$folder/$scenarioName/$testName$dot$deviceName$postfix.png'),
     );
   }
 }
