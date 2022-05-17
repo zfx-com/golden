@@ -75,6 +75,7 @@ class GoldenTester extends GoldenTesterBase {
     Locale locale, {
     required String scenarioName,
     required Future<void> Function(GoldenTesterBase) scenario,
+    bool wrapRunAsync = false,
   }) async {
     await setScenario(
       tester: tester,
@@ -82,7 +83,11 @@ class GoldenTester extends GoldenTesterBase {
       scenarioName: scenarioName,
       locale: locale,
     );
-    await scenario(this);
+    if (wrapRunAsync) {
+      await tester.runAsync(() async => await scenario(this));
+    } else {
+      await scenario(this);
+    }
     await matchesGolden();
     await _postPumping?.call(tester);
   }
