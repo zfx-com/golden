@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
-class BrightnessContrast {
-  BrightnessContrast({
+enum BrightnessContrast {
+  light(brightness: Brightness.light, hightContrast: false),
+  lightContrast(brightness: Brightness.light, hightContrast: true),
+  dark(brightness: Brightness.dark, hightContrast: false),
+  darkContrast(brightness: Brightness.dark, hightContrast: true);
+
+  const BrightnessContrast({
     required this.brightness,
     required this.hightContrast,
   });
