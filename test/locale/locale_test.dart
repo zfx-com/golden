@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden/golden.dart';
-import 'package:golden_toolkit/golden_toolkit.dart';
 
 const locales = <Locale>[
   Locale('en'),
@@ -31,11 +30,12 @@ void main() {
 
       testDeviceGoldens(
         'loaded page',
-        (tester, device, locale) async {
+        (tester, device, locale, theme) async {
           return exampleTester.builder(
             tester,
             device,
             locale,
+            theme,
             scenarioName: 'init',
             scenario: (_) async {
               await exampleTester.init();
@@ -50,11 +50,12 @@ void main() {
 
       testDeviceGoldens(
         'crash',
-        (tester, device, locale) async {
+        (tester, device, locale, theme) async {
           return crashGoldenTester.builder(
             tester,
             device,
             locale,
+            theme,
             scenarioName: 'crash',
             scenario: (_) async {
               await crashGoldenTester.init();
@@ -75,8 +76,8 @@ void main() {
 class ExampleGoldenTester extends GoldenTester {
   ExampleGoldenTester()
       : super(
-          widget: (key) => const ExampleWiget(),
-          wrapper: (child, locale) => MaterialApp(
+          widget: (key) => const ExampleWidget(),
+          wrapper: (child, locale, brightness) => MaterialApp(
             supportedLocales: locales,
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -97,8 +98,8 @@ class ExampleGoldenTester extends GoldenTester {
 class CrashGoldenTester extends GoldenTester {
   CrashGoldenTester()
       : super(
-          widget: (key) => const CrashWiget(),
-          wrapper: (child, locale) => MaterialApp(
+          widget: (key) => const CrashWidget(),
+          wrapper: (child, locale, brightness) => MaterialApp(
             supportedLocales: locales,
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -116,8 +117,8 @@ class CrashGoldenTester extends GoldenTester {
   }
 }
 
-class ExampleWiget extends StatelessWidget {
-  const ExampleWiget({
+class ExampleWidget extends StatelessWidget {
+  const ExampleWidget({
     Key? key,
   }) : super(key: key);
 
@@ -127,19 +128,20 @@ class ExampleWiget extends StatelessWidget {
   }
 }
 
-class CrashWiget extends StatelessWidget {
-  const CrashWiget({
+class CrashWidget extends StatelessWidget {
+  const CrashWidget({
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Row(
-      children: const [
-        Text(
-            'Test crash sdkfhksd sdkfhjsd lkjflsdkj sdfljlksdf slkdfjlksdj sdfjlskdjf sdkfjlksdf sdlkfjsdlkf sdklfjlksdjf slkdjfklskdfj lksdjflksdjf'),
-      ],
-    ));
+      child: Row(
+        children: const [
+          Text(
+              'Test crash sdkfhksd sdkfhjsd lkjflsdkj sdfljlksdf slkdfjlksdj sdfjlskdjf sdkfjlksdf sdlkfjsdlkf sdklfjlksdjf slkdjfklskdfj lksdjflksdjf'),
+        ],
+      ),
+    );
   }
 }
