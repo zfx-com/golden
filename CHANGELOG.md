@@ -1,3 +1,9 @@
+## 0.3.0
+
+- Support multi themes.
+- Added theme tests.
+- Enhanced Device class.
+
 ## 0.2.0
 
 - Support multi languages
