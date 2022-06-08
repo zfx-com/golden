@@ -1,30 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:golden/src/brightness_contrast.dart';
+import 'package:golden/src/theme.dart';
 import 'package:golden/src/device.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const List<Locale> defaultLocales = <Locale>[
-  Locale('us', 'US'),
-];
+const List<Locale> defaultLocales = <Locale>[Locale('us', 'US')];
 const List<Device> defaultDevices = <Device>[Device.iphone11];
-
-const List<BrightnessContrast> defaultBrightnessContrast = <BrightnessContrast>[
-  BrightnessContrast.light,
-];
+final List<NamedTheme> defaultThemes = [NamedTheme.defaultTheme];
 
 @isTestGroup
 void testDeviceGoldens(
   String description,
-  Future<void> Function(WidgetTester, Device, Locale, BrightnessContrast)
-      builder, {
+  Future<void> Function(WidgetTester, Device, Locale, NamedTheme) builder, {
   FutureOr<void> Function()? setUp,
   FutureOr<void> Function()? tearDown,
   List<Device> devices = defaultDevices,
   List<Locale> locales = defaultLocales,
-  List<BrightnessContrast> brightnessContrast = defaultBrightnessContrast,
+  List<NamedTheme>? themes,
   bool? skip,
   Timeout? timeout,
   bool semanticsEnabled = true,
@@ -43,35 +37,35 @@ void testDeviceGoldens(
     variant: variant,
     tags: tags,
     locales: locales,
-    brightnessContrast: brightnessContrast,
+    themes: themes,
   );
 }
 
 class _TestDeviceGoldens {
   static void testWidgetDevices(
     String description,
-    Future<void> Function(WidgetTester, Device, Locale, BrightnessContrast)
-        builder, {
+    Future<void> Function(WidgetTester, Device, Locale, NamedTheme) builder, {
     FutureOr<void> Function()? setUp,
     FutureOr<void> Function()? tearDown,
     List<Device> devices = defaultDevices,
     List<Locale> locales = defaultLocales,
-    List<BrightnessContrast> brightnessContrast = defaultBrightnessContrast,
+    List<NamedTheme>? themes,
     bool? skip,
     Timeout? timeout,
     bool semanticsEnabled = true,
     TestVariant<Object?> variant = const DefaultTestVariant(),
     Iterable<String>? tags,
   }) {
+    final filledThemes = themes ?? defaultThemes;
     for (final device in devices) {
       for (final locale in locales) {
-        for (final brightness in brightnessContrast) {
+        for (final theme in filledThemes) {
           testWidgets(
-            '$description (${device.name}:$locale:$brightness)',
+            '$description (${device.name}:$locale:${theme.name})',
             (tester) async {
               await setUp?.call();
               await _setSurfaceSize(tester, device);
-              await builder(tester, device, locale, brightness);
+              await builder(tester, device, locale, theme);
               await tearDown?.call();
             },
             skip: skip,
